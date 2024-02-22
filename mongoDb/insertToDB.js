@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb')
 
-const MongoDBclient = new MongoClient('mongodb://localhost:27017')
+const MongoDBclient = new MongoClient(process.env.MONGO_HOST)
 
 async function insertPost(post) {
 
