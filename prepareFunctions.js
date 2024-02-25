@@ -1,23 +1,3 @@
-function preparePost(rawPosts) {
-
-  const posts = []
-
-  for (const rawPost of rawPosts) {
-
-    const post = {
-      id: rawPost.pk,
-      authorId: rawPost.user.id,
-      text: rawPost.caption.text,
-      urlPicture: rawPost.image_versions2.candidates[0].url,
-      date: rawPost.device_timestamp
-    }
-    posts.push(post)
-  }
-
-  return posts
-
-}
-
 function prepareUser(rawUser) {
 
   return {
@@ -28,7 +8,44 @@ function prepareUser(rawUser) {
 
 }
 
+//Связь пользователь + подписчики
+function prepareAddictionFollower(idUser, follower) {
+  try {
+
+    return {
+      //кто подписан + на кого подписан
+      id: `_${follower.pk}__${idUser}`,
+      follower: `_${follower.pk}`,
+      following: `_${idUser}`
+    }
+
+  } catch (error) {
+
+    console.error(`Ошибка при создании связи ${follower.pk} + ${idUser}`)
+
+  }
+}
+
+//Связь пользователь + подписки
+function prepareAddictionFollowing(idUser, following) {
+  try {
+
+    return {
+      //кто подписан + на кого подписан
+      id: `_${idUser}__${following.pk}`,
+      follower: `_${idUser}`,
+      following: `_${following.pk}`
+    }
+
+  } catch (error) {
+
+    console.error(`Ошибка при создании связи ${idUser} + ${follower.pk}`)
+
+  }
+}
+
 module.exports = {
-  preparePost,
-  prepareUser
+  prepareUser,
+  prepareAddictionFollower,
+  prepareAddictionFollowing
 }

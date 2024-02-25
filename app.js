@@ -6,7 +6,7 @@ const prepare = require("./prepareFunctions")
 
 require('dotenv').config()
 
-const mongo = new Mongo("instagram")
+const mongo = new Mongo(process.env.MONGO_BD_NAME)
 
 const inst = new Instagram()
 
@@ -24,8 +24,16 @@ async function app(userName) {
 
     await mongo.connect()
 
+    //Добавление в БД связи пользователь + его подписчики
+    await mongo.insertObj("addiction", follower.map(rawFollower => prepare.prepareAddictionFollower(id, rawFollower)))
+
+    //Добавление в БД связи пользователь + его подписки
+    await mongo.insertObj("addiction", following.map(rawFollowing => prepare.prepareAddictionFollower(id, rawFollowing)))
+
+    //Добавление в БД пользователей - подписчиков
     await mongo.insertObj("users", follower.map(rawUser => prepare.prepareUser(rawUser)))
 
+    //Добавлние в БД пользователей - на кого подписан
     await mongo.insertObj("users", following.map(rawUser => prepare.prepareUser(rawUser)))
 
     await mongo.close()

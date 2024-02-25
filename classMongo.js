@@ -39,11 +39,11 @@ class Mongo {
 
       const result = await collection.bulkWrite(operations)
 
-      console.log(`Добавлено ${result.modifiedCount} объектов, вставлено ${result.upsertedCount} новых объектов.`)
+      console.log(`В коллекцию ${collectionName} вставлено ${result.upsertedCount} новых объектов, ${result.modifiedCount} объектов было обновлено`)
 
     } catch (error) {
 
-      console.error(`При добавлениении объека в коллекцию ${collectionName} произошла ошибка: ${error}`)
+      console.error(`При добавлениении объекта в коллекцию ${collectionName} произошла ошибка: ${error}`)
 
     }
   }
