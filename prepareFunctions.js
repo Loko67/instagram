@@ -2,7 +2,7 @@ function prepareUser(rawUser) {
 
   return {
     id: rawUser.pk,
-    fullName: rawUser.full_name,
+    fullName: rawUser.full_name || null,
     userName: rawUser.username
   }
 

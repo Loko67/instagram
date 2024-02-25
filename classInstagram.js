@@ -19,7 +19,6 @@ class Instagram {
       console.error(`Ошибка при авторизации в инстаграм ${error}`)
 
     }
-
   }
 
   //Получение id пользователя
@@ -35,7 +34,6 @@ class Instagram {
       return null
 
     }
-
   }
 
   //Получение полной информации о пользователе
@@ -51,7 +49,6 @@ class Instagram {
       return null
 
     }
-
   }
 
   //Получение подписок пользователя
@@ -80,7 +77,6 @@ class Instagram {
       return []
 
     }
-
   }
 
   //Получение подписчиков пользователя
@@ -109,9 +105,7 @@ class Instagram {
       return []
 
     }
-
   }
-
 }
 
 module.exports = Instagram

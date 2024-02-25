@@ -18,12 +18,21 @@ async function app(userName) {
 
     const id = await inst.getIdUser(userName)
 
+    const info = await inst.getFullInfoUser(id)
+
+    //Проверка закрытого профиля
+    if (info.is_private) {
+
+      console.log(`У пользователя ${userName} закрытый профиль`)
+      return
+
+    }
+
     const follower = await inst.getFollower(id)
 
     const following = await inst.getFollowing(id)
 
     await mongo.connect()
-
 
     if (follower.length > 0) {
 
@@ -38,7 +47,6 @@ async function app(userName) {
       console.log(`У пользователя ${userName} нет подписчиков`)
 
     }
-
 
     if (following.length > 0) {
 
