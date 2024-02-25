@@ -24,17 +24,35 @@ async function app(userName) {
 
     await mongo.connect()
 
-    //Добавление в БД связи пользователь + его подписчики
-    await mongo.insertObj("addiction", follower.map(rawFollower => prepare.prepareAddictionFollower(id, rawFollower)))
 
-    //Добавление в БД связи пользователь + его подписки
-    await mongo.insertObj("addiction", following.map(rawFollowing => prepare.prepareAddictionFollower(id, rawFollowing)))
+    if (follower.length > 0) {
 
-    //Добавление в БД пользователей - подписчиков
-    await mongo.insertObj("users", follower.map(rawUser => prepare.prepareUser(rawUser)))
+      //Добавление в БД связи пользователь + его подписчики
+      await mongo.insertObj("addiction", follower.map(rawFollower => prepare.prepareAddictionFollower(id, rawFollower)))
 
-    //Добавлние в БД пользователей - на кого подписан
-    await mongo.insertObj("users", following.map(rawUser => prepare.prepareUser(rawUser)))
+      //Добавление в БД пользователей - подписчиков
+      await mongo.insertObj("users", follower.map(rawUser => prepare.prepareUser(rawUser)))
+
+    } else {
+
+      console.log(`У пользователя ${userName} нет подписчиков`)
+
+    }
+
+
+    if (following.length > 0) {
+
+      //Добавление в БД связи пользователь + его подписки
+      await mongo.insertObj("addiction", following.map(rawFollowing => prepare.prepareAddictionFollower(id, rawFollowing)))
+
+      //Добавлние в БД пользователей - на кого подписан
+      await mongo.insertObj("users", following.map(rawUser => prepare.prepareUser(rawUser)))
+
+    } else {
+
+      console.log(`Пользователь ${userName} ни на кого не подписан`)
+
+    }
 
     await mongo.close()
 
