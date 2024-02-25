@@ -3,7 +3,8 @@ function prepareUser(rawUser) {
   return {
     id: rawUser.pk,
     fullName: rawUser.full_name || null,
-    userName: rawUser.username
+    userName: rawUser.username,
+    is_private: rawUser.is_private
   }
 
 }
