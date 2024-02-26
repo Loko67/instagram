@@ -64,6 +64,8 @@ async function app(userName) {
 
     await mongo.close()
 
+    console.log(`Всего к API было сделано ${inst.responseCount} запросов`)
+
   } catch (error) {
 
     console.error(`Ошибка: ${error}`)

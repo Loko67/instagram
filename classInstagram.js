@@ -5,12 +5,14 @@ class Instagram {
     this.IG_USERNAME = process.env.IG_USERNAME,
       this.IG_PASSWORD = process.env.IG_PASSWORD,
       this.ig = new IgApiClient()
+    this.responseCount = 0
   }
 
   //Авторизация в инстаграм
   async login() {
     try {
 
+      this.responseCount++
       this.ig.state.generateDevice(this.IG_USERNAME)
       await this.ig.account.login(this.IG_USERNAME, this.IG_PASSWORD)
 
@@ -25,6 +27,7 @@ class Instagram {
   async getIdUser(userName) {
     try {
 
+      this.responseCount++
       return await this.ig.user.getIdByUsername(userName)
 
     } catch (error) {
@@ -40,6 +43,7 @@ class Instagram {
   async getFullInfoUser(idUser) {
     try {
 
+      this.responseCount++
       return await this.ig.user.info(idUser)
 
     } catch (error) {
@@ -62,6 +66,7 @@ class Instagram {
       const followingFeed = this.ig.feed.accountFollowing(idUser)
 
       do {
+        this.responseCount++
         const followingArr = (await followingFeed.request()).users
         following.push(...followingArr)
         isMoreAvailable = followingFeed.isMoreAvailable()
@@ -90,6 +95,7 @@ class Instagram {
       const followerFeed = this.ig.feed.accountFollowers(idUser)
 
       do {
+        this.responseCount++
         const followerArr = (await followerFeed.request()).users
         follower.push(...followerArr)
         isMoreAvailable = followerFeed.isMoreAvailable()
