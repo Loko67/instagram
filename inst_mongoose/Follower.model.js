@@ -2,11 +2,11 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
 
-const UserSchema = new Schema(
+const FollowerSchema = new Schema(
   {
     id: String,
-    fullName: String,
-    userName: String,
+    _follow: String,
+    _follower: String,
 
     dtCreatedAtUTC: {
       type: Date,
@@ -17,16 +17,15 @@ const UserSchema = new Schema(
       type: Date,
       default: undefined
     },
-
-    is_private: Boolean
-    
   },
 
-  { versionKey: false }
+  {
+    versionKey: false,
+  }
 
 )
 
 
-const UserModel = mongoose.model("users", UserSchema)
+const FollowerModel = mongoose.model("followers", FollowerSchema)
 
-module.exports = { UserModel }
+module.exports = { FollowerModel }

@@ -1,12 +1,17 @@
 const mongoose = require("mongoose")
+
 const { UserModel } = require("./User.model")
+const { FollowerModel } = require("./Follower.model")
 
 const options = { dbName: "instagram" }
 
 const Instagram = require("./Instagram").Instagram
 const inst = new Instagram()
 
+const utils = require("./utils")
+
 require('dotenv').config()
+
 
 async function app(userName) {
   try {
@@ -33,75 +38,46 @@ async function app(userName) {
 
     db.on("connected", async () => {
 
-      console.log("Подключение к базе данных успешно")
+      console.log("Подключение к базе данных открыто")
 
-      const user = new UserModel(
-        {
-          id: info.pk,
-          fullName: info.full_name || '',
-          userName: info.username,
-          is_private: info.is_private
-        }
-      )
+      const allUsersFromBd = await utils.getAllObjFromBd(UserModel)
+      const allFollowersFromDb = await utils.getAllObjFromBd(FollowerModel)
 
-      if (await UserModel.findOne({ id: user.id })) {
 
-        await UserModel.updateOne(
-          { id: user.id },
-          {
-            $set:
-            {
-              id: user.id,
-              fullName: user.fullName,
-              userName: user.userName,
-              is_private: user.is_private,
-              dtUpdatedAtUTC: new Date()
-            }
-          }
-        )
-
-      } else {
-        await user.save()
-      }
-
-      if (info.is_private) {
-
-        await mongoose.disconnect()
-        return
-
-      }
+      //добавление в БД юзера, которого передали при старте
+      allUsersFromBd.includes((info.pk).toString()) ?
+        await utils.updateToDb(utils.prepareUpdateUser(info), UserModel) :
+        await utils.prepareNewUser(info).save()
 
       const following = await inst.getFollowing(id)
 
       for (const rawUser of following) {
-        const user = new UserModel(
-          {
-            id: info.pk,
-            fullName: info.full_name || '',
-            userName: info.username,
-            is_private: info.is_private
-          }
-        )
 
-        if (await UserModel.findOne({ id: user.id })) {
+        allUsersFromBd.includes((rawUser.id).toString()) ?
+          await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
+          await utils.prepareNewUser(rawUser).save()
 
-          await UserModel.updateOne(
-            { id: user.id },
-            {
-              $set:
-              {
-                id: user.id,
-                fullName: user.fullName,
-                userName: user.userName,
-                is_private: user.is_private,
-                dtUpdatedAtUTC: new Date()
-              }
-            }
-          )
 
-        } else {
-          await user.save()
-        }
+        allFollowersFromDb.includes(`_${info.pk}__${rawUser.id}`) ?
+          await utils.updateToDb(utils.prepareUpdateFollower(info.pk, rawUser.id)) :
+          await utils.prepareNewFollower(info.pk, rawUser.id).save()
+
+      }
+
+
+      const follower = inst.getFollower(id)
+
+      for (const rawUser of follower) {
+
+        allUsersFromBd.includes((rawUser.id).toString()) ?
+          await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
+          await utils.prepareNewUser(rawUser).save()
+
+
+        allFollowersFromDb.includes(`_${rawUser.id}__${info.pk}`) ?
+          await utils.updateToDb(utils.prepareUpdateFollower(rawUser.id, info.pk)) :
+          await utils.prepareNewFollower(rawUser.id, info.pk).save()
+
       }
 
       await mongoose.disconnect()
