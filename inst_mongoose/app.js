@@ -51,33 +51,39 @@ async function app(userName) {
 
       const following = await inst.getFollowing(id)
 
-      for (const rawUser of following) {
+      if (following.length > 0) {
 
-        allUsersFromBd.includes((rawUser.id).toString()) ?
-          await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
-          await utils.prepareNewUser(rawUser).save()
+        for (const rawUser of following) {
+
+          allUsersFromBd.includes((rawUser.pk).toString()) ?
+            await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
+            await utils.prepareNewUser(rawUser).save()
 
 
-        allFollowersFromDb.includes(`_${info.pk}__${rawUser.id}`) ?
-          await utils.updateToDb(utils.prepareUpdateFollower(info.pk, rawUser.id)) :
-          await utils.prepareNewFollower(info.pk, rawUser.id).save()
+          allFollowersFromDb.includes(`_${rawUser.pk}__${info.pk}`) ?
+            await utils.updateToDb(utils.prepareUpdateFollower(info.pk, rawUser.pk), FollowerModel) :
+            await utils.prepareNewFollower(info.pk, rawUser.pk).save()
 
+        }
       }
 
 
-      const follower = inst.getFollower(id)
+      const follower = await inst.getFollower(id)
 
-      for (const rawUser of follower) {
+      if (follower.length > 0) {
 
-        allUsersFromBd.includes((rawUser.id).toString()) ?
-          await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
-          await utils.prepareNewUser(rawUser).save()
+        for (const rawUser of follower) {
+
+          allUsersFromBd.includes((rawUser.pk).toString()) ?
+            await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
+            await utils.prepareNewUser(rawUser).save()
 
 
-        allFollowersFromDb.includes(`_${rawUser.id}__${info.pk}`) ?
-          await utils.updateToDb(utils.prepareUpdateFollower(rawUser.id, info.pk)) :
-          await utils.prepareNewFollower(rawUser.id, info.pk).save()
+          allFollowersFromDb.includes(`_${info.pk}__${rawUser.pk}`) ?
+            await utils.updateToDb(utils.prepareUpdateFollower(rawUser.pk, info.pk), FollowerModel) :
+            await utils.prepareNewFollower(rawUser.pk, info.pk).save()
 
+        }
       }
 
       await mongoose.disconnect()
