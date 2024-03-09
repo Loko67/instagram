@@ -94,5 +94,3 @@ async function app(userName) {
     console.log(`Ошибка ${error}`)
   }
 }
-
-app("alexorlov600")
