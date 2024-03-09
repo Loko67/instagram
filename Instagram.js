@@ -2,16 +2,24 @@ const { IgApiClient } = require("instagram-private-api")
 
 class Instagram {
   constructor() {
-    this.IG_USERNAME = process.env.IG_USERNAME,
-      this.IG_PASSWORD = process.env.IG_PASSWORD,
+    this.IG_USERNAME = null
+      this.IG_PASSWORD = null
       this.ig = new IgApiClient()
     this.responseCount = 0
+  }
+
+
+  async initializeCredentials() {
+    this.IG_USERNAME = process.env.IG_USERNAME
+    this.IG_PASSWORD = process.env.IG_PASSWORD
   }
 
 
   //Авторизация в инстаграм
   async login() {
     try {
+
+      await this.initializeCredentials()
 
       this.responseCount++
       this.ig.state.generateDevice(this.IG_USERNAME)
