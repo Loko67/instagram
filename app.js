@@ -1,6 +1,6 @@
-const Mongo = require("./classMongo")
+const Mongo = require("./Mongo").Mongo
 
-const Instagram = require("./classInstagram")
+const Instagram = require("./Instagram").Instagram
 
 const prepare = require("./prepareFunctions")
 
@@ -15,6 +15,7 @@ async function app(userName) {
   try {
 
     await inst.login()
+    await mongo.connect()
 
     const id = await inst.getIdUser(userName)
 
@@ -30,41 +31,24 @@ async function app(userName) {
 
     const follower = await inst.getFollower(id)
 
+    //Добавление в БД связи пользователь + его подписчики
+    await mongo.insertObj("follower", follower.map(rawFollower => prepare.prepareAddictionFollower(id, rawFollower)))
+
+    //Добавление в БД пользователей - подписчиков
+    await mongo.insertObj("users", follower.map(rawUser => prepare.prepareUser(rawUser)))
+
     const following = await inst.getFollowing(id)
 
-    await mongo.connect()
+    //Добавление в БД связи пользователь + его подписки
+    await mongo.insertObj("follower", following.map(rawFollowing => prepare.prepareAddictionFollower(id, rawFollowing)))
 
-    if (follower.length > 0) {
-
-      //Добавление в БД связи пользователь + его подписчики
-      await mongo.insertObj("addiction", follower.map(rawFollower => prepare.prepareAddictionFollower(id, rawFollower)))
-
-      //Добавление в БД пользователей - подписчиков
-      await mongo.insertObj("users", follower.map(rawUser => prepare.prepareUser(rawUser)))
-
-    } else {
-
-      console.log(`У пользователя ${userName} нет подписчиков`)
-
-    }
-
-    if (following.length > 0) {
-
-      //Добавление в БД связи пользователь + его подписки
-      await mongo.insertObj("addiction", following.map(rawFollowing => prepare.prepareAddictionFollower(id, rawFollowing)))
-
-      //Добавлние в БД пользователей - на кого подписан
-      await mongo.insertObj("users", following.map(rawUser => prepare.prepareUser(rawUser)))
-
-    } else {
-
-      console.log(`Пользователь ${userName} ни на кого не подписан`)
-
-    }
-
-    await mongo.close()
+    //Добавлние в БД пользователей - на кого подписан
+    await mongo.insertObj("users", following.map(rawUser => prepare.prepareUser(rawUser)))
 
     console.log(`Всего к API было сделано ${inst.responseCount} запросов`)
+
+    await mongo.close()
+    process.exit(0)
 
   } catch (error) {
 
@@ -72,3 +56,5 @@ async function app(userName) {
 
   }
 }
+
+app("alexorlov369")

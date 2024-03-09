@@ -2,19 +2,16 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
 
-const FollowerSchema = new Schema(
+const UserNameSchema = new Schema(
   {
     id: String,
 
-    _follow: {
+    _userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users"
     },
 
-    _follower: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users"
-    },
+    userName: String,
 
     dtCreatedAtUTC: {
       type: Date,
@@ -24,16 +21,15 @@ const FollowerSchema = new Schema(
     dtUpdatedAtUTC: {
       type: Date,
       default: undefined
-    },
+    }
+    
   },
 
-  {
-    versionKey: false,
-  }
+  { versionKey: false }
 
 )
 
 
-const FollowerModel = mongoose.model("followers", FollowerSchema)
+const UserNameModel = mongoose.model("userName", UserNameSchema)
 
-module.exports = { FollowerModel }
+module.exports = { UserNameModel }

@@ -46,7 +46,7 @@ async function app(userName) {
 
       //добавление в БД юзера, которого передали при старте
       allUsersFromBd.includes((info.pk).toString()) ?
-        await utils.updateToDb(utils.prepareUpdateUser(info), UserModel) :
+        await utils.updateToDb(await utils.prepareUpdateUser(info), UserModel) :
         await utils.prepareNewUser(info).save()
 
       const following = await inst.getFollowing(id)
@@ -56,7 +56,7 @@ async function app(userName) {
         for (const rawUser of following) {
 
           allUsersFromBd.includes((rawUser.pk).toString()) ?
-            await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
+            await utils.updateToDb(await utils.prepareUpdateUser(rawUser), UserModel) :
             await utils.prepareNewUser(rawUser).save()
 
 
@@ -75,7 +75,7 @@ async function app(userName) {
         for (const rawUser of follower) {
 
           allUsersFromBd.includes((rawUser.pk).toString()) ?
-            await utils.updateToDb(utils.prepareUpdateUser(rawUser), UserModel) :
+            await utils.updateToDb(await utils.prepareUpdateUser(rawUser), UserModel) :
             await utils.prepareNewUser(rawUser).save()
 
 
@@ -95,4 +95,4 @@ async function app(userName) {
   }
 }
 
-app("alexorlov369")
+app("alexorlov600")

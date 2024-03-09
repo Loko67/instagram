@@ -9,6 +9,7 @@ class Mongo {
 
   }
 
+
   //Открытие соединения
   async connect() {
     try {
@@ -23,19 +24,33 @@ class Mongo {
     }
   }
 
+
   //Добавление массива объетов в коллекцию
   async insertObj(collectionName, objArr) {
     try {
 
       const collection = this.db.collection(collectionName)
 
-      const operations = objArr.map(obj => ({
+      // получить из монги все сущесвующие id объектов по их id
+      // filter: { id: { $in: objArr.map(o => o.id) } }
+      // select:  { id: 1}
+
+      // какие нужно создать
+      // какие нужно проапдейтить
+
+      const operations = objArr
+      .map(
+        (obj) => 
+          {
+            return {
         updateOne: {
           filter: { id: obj.id },
           update: { $set: obj },
           upsert: true
         }
-      }))
+            }
+          }
+      )
 
       const result = await collection.bulkWrite(operations)
 
@@ -47,6 +62,7 @@ class Mongo {
 
     }
   }
+
 
   //Закрытие соединения
   async close() {
@@ -62,4 +78,4 @@ class Mongo {
   }
 }
 
-module.exports = Mongo
+module.exports = { Mongo }

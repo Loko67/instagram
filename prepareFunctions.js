@@ -2,12 +2,13 @@ function prepareUser(rawUser) {
 
   return {
     id: rawUser.pk,
-    fullName: rawUser.full_name || null,
+    fullName: rawUser.full_name || '',
     userName: rawUser.username,
     is_private: rawUser.is_private
   }
 
 }
+
 
 //Связь пользователь + подписчики
 function prepareAddictionFollower(idUser, follower) {
@@ -26,6 +27,7 @@ function prepareAddictionFollower(idUser, follower) {
 
   }
 }
+
 
 //Связь пользователь + подписки
 function prepareAddictionFollowing(idUser, following) {

@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "dotenv": "^16.4.4",
+    "dotenv": "^16.4.5",
     "instagram-private-api": "^1.45.3",
-    "mongodb": "^6.3.0"
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.2.0"
   }
 }
