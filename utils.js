@@ -1,125 +1,114 @@
-const { UserModel } = require("./User.model")
-const { FollowerModel } = require("./Follower.model")
-const { UserNameModel } = require("./UserName.model")
+const { UserModel } = require("./Models/User.model")
+const { FollowerModel } = require("./Models/Follower.model")
+const { UserNameModel } = require("./Models/UserName.model")
 
-function prepareNewUser(rawUser) {
+/**
+ * Создание нового или обновление существующего объекта user
+ * на основе объекта из Instagram
+ * 
+ * @param {Object} rawUser объект пользователя из Instagram
+ * 
+ */
+async function prepareUser(rawUser) {
 
-  return new UserModel(
-    {
+  try {
+
+    const newUser = {
       id: rawUser.pk,
       fullName: rawUser.full_name || '',
       userName: rawUser.username,
       is_private: rawUser.is_private,
     }
-  )
-}
 
+    await UserModel.updateOne(
+      { id: rawUser.pk },
+      { $set: newUser },
+      { upsert: true }
+    )
 
-async function updateUserName(obj) {
+  } catch (error) {
 
-  const user = await UserModel.findOne({ id: obj.pk })
-
-  const userName = await UserNameModel.findOne({ userName: obj.username });
-
-  userName ?
-    await updateToDb(
-      {
-        id: userName.id,
-        _userId: user._id,
-        userName: obj.username
-      },
-      UserNameModel) :
-
-    await new UserNameModel(
-
-      {
-        id: `_${obj.pk}__${obj.username}_${new Date().getTime()}`,
-        _userId: user._id,
-        userName: obj.username,
-        dtCreatedAtUTC: new Date()
-      }
-    ).save()
-
-}
-
-
-async function prepareUpdateUser(rawUser) {
-
-  const user = await UserModel.findOne({ id: rawUser.pk })
-
-  const updateUser = {
-    id: rawUser.pk,
-    fullName: rawUser.full_name || '',
-    is_private: rawUser.is_private
-  }
-
-
-  if (rawUser.username == user.userName) {
-
-    return updateUser
-
-  } else {
-
-    await updateUserName(rawUser)
-    return updateUser
+    throw new Error(`Ошибка при создании юзера: ${error}`)
 
   }
-}
-
-
-function prepareUpdateFollower(idFollower, idFollowing) {
-
-  return {
-    id: `_${idFollowing}__${idFollower}`,
-    follower: `_${idFollower}`,
-    following: `_${idFollowing}`
-  }
 
 }
 
 
-async function prepareNewFollower(idFollower, idFollowing) {
+/**
+ * Создание нового или обновление существующего объекта follower
+ * с зависимостью между пользователями
+ * 
+ * @param {String} idFollower id пользователя-подписчика
+ * @param {String} idFollowing id пользователя, на которого подписан
+ * 
+ */
+async function prepareFollower(idFollower, idFollowing) {
 
-  const follower = await UserModel.findOne({ id: idFollower })
-  const following = await UserModel.findOne({ id: idFollowing })
+  try {
 
-  return new FollowerModel(
-    {
+    const follower = await UserModel.findOne({ id: idFollower })
+    const following = await UserModel.findOne({ id: idFollowing })
+
+    const newFollower = {
       id: `_${idFollowing}__${idFollower}`,
       _follower: follower._id,
       _following: following._id
     }
-  )
+
+    await FollowerModel.updateOne(
+      { id: `_${idFollowing}__${idFollower}` },
+      { $set: newFollower },
+      { upsert: true }
+    )
+
+  } catch (error) {
+
+    throw new Error(`Ошибка при создании подписчика ${error}`)
+
+  }
 
 }
 
+/**
+ * Создание нового или обновление существующего объекта userName
+ * с указанием предыдущего имени пользователя
+ * 
+ * @param {Object} rawUser объект пользователя из Instagram
+ * 
+ */
+async function prepareUserName(rawUser) {
 
-async function updateToDb(obj, Model) {
+  const user = await UserModel.findOne({ id: rawUser.pk })
 
-  obj.dtUpdatedAtUTC = new Date()
+  if (user && rawUser.username != user.userName) {
 
-  await Model.updateOne(
-    { id: obj.id },
-    { $set: obj },
-    { upsert: false }
-  )
+    try {
 
-}
+      const newUserName = {
+        id: `_${user.id}__${user.userName}_${new Date().getTime()}`,
+        _userId: user._id,
+        userName: user.userName
+      }
 
+      await UserNameModel.updateOne(
+        { userName: user.userName, _userId: user._id },
+        { $set: newUserName },
+        { upsert: true }
+      )
 
-async function getAllObjFromBd(Model) {
+    } catch (error) {
 
-  return (await Model.find({}).select("id"))
-    .map(obj => obj.id)
+      throw new Error(`Ошибка при создании UserName ${error}`)
+
+    }
+  }
 
 }
 
 
 module.exports = {
-  updateToDb,
-  getAllObjFromBd,
-  prepareUpdateUser,
-  prepareNewUser,
-  prepareNewFollower,
-  prepareUpdateFollower
+  prepareUser,
+  prepareFollower,
+  prepareUserName
 }

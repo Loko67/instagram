@@ -1,8 +1,5 @@
 const mongoose = require("mongoose")
 
-const { UserModel } = require("./User.model")
-const { FollowerModel } = require("./Follower.model")
-
 const options = { dbName: "instagram" }
 
 const Instagram = require("./Instagram").Instagram
@@ -12,12 +9,20 @@ const utils = require("./utils")
 
 require('dotenv').config()
 
-
+/**
+ * Получение информации о подписках и подписчиках пользователя
+ * и добавление этой информации в БД
+ * 
+ * @param {String} userName имя пользователя, по которому нужно получить информацию
+ * 
+ */
 async function app(userName) {
   try {
 
+    //Залогиниться в Instagram
     await inst.login()
 
+    //Получить данные о пользователе, которого передали при старте
     const id = await inst.getIdUser(userName)
     const info = await inst.getFullInfoUser(id)
 
@@ -26,7 +31,7 @@ async function app(userName) {
 
 
     db.on("error", error => {
-      console.error(`Ошибка: ${error}`)
+      console.error(`Ошибка подключения к БД: ${error}`)
       process.exit(1)
     })
 
@@ -40,59 +45,51 @@ async function app(userName) {
 
       console.log("Подключение к базе данных открыто")
 
-      const allUsersFromBd = await utils.getAllObjFromBd(UserModel)
-      const allFollowersFromDb = await utils.getAllObjFromBd(FollowerModel)
+      try {
 
+        //Проверить пользователя, которого передали при запуске
+        await utils.prepareUserName(info)
+        await utils.prepareUser(info)
 
-      //добавление в БД юзера, которого передали при старте
-      allUsersFromBd.includes((info.pk).toString()) ?
-        await utils.updateToDb(await utils.prepareUpdateUser(info), UserModel) :
-        await utils.prepareNewUser(info).save()
+        //Получить массив с подписками
+        const following = await inst.getFollowing(id)
 
-      const following = await inst.getFollowing(id)
+        if (following.length > 0) {
 
-      if (following.length > 0) {
+          for (const rawUser of following) {
 
-        for (const rawUser of following) {
+            await utils.prepareUserName(rawUser)
+            await utils.prepareUser(rawUser)
+            await utils.prepareFollower(info.pk, rawUser.pk)
 
-          allUsersFromBd.includes((rawUser.pk).toString()) ?
-            await utils.updateToDb(await utils.prepareUpdateUser(rawUser), UserModel) :
-            await utils.prepareNewUser(rawUser).save()
-
-
-          allFollowersFromDb.includes(`_${rawUser.pk}__${info.pk}`) ?
-            await utils.updateToDb(utils.prepareUpdateFollower(info.pk, rawUser.pk), FollowerModel) :
-            await utils.prepareNewFollower(info.pk, rawUser.pk).save()
-
+          }
         }
-      }
 
 
-      const follower = await inst.getFollower(id)
+        //Получить массив с подписчиками
+        const follower = await inst.getFollower(id)
 
-      if (follower.length > 0) {
+        if (follower.length > 0) {
 
-        for (const rawUser of follower) {
+          for (const rawUser of follower) {
 
-          allUsersFromBd.includes((rawUser.pk).toString()) ?
-            await utils.updateToDb(await utils.prepareUpdateUser(rawUser), UserModel) :
-            await utils.prepareNewUser(rawUser).save()
+            await utils.prepareUserName(rawUser)
+            await utils.prepareUser(rawUser)
+            await utils.prepareFollower(rawUser.pk, info.pk)
 
-
-          allFollowersFromDb.includes(`_${info.pk}__${rawUser.pk}`) ?
-            await utils.updateToDb(utils.prepareUpdateFollower(rawUser.pk, info.pk), FollowerModel) :
-            await utils.prepareNewFollower(rawUser.pk, info.pk).save()
-
+          }
         }
+
+        await mongoose.disconnect()
+
+      } catch (error) {
+        console.error(error.message)
+        if (error) process.exit(1)
       }
-
-      await mongoose.disconnect()
-
     })
 
   } catch (error) {
-    console.log(`Ошибка ${error}`)
+    console.error(error.message)
+    if (error) process.exit(1)
   }
 }
-
-app("alexorlov600")

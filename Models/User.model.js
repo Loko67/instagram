@@ -9,8 +9,7 @@ const UserSchema = new Schema(
     userName: String,
 
     dtCreatedAtUTC: {
-      type: Date,
-      default: Date.now()
+      type: Date
     },
 
     dtUpdatedAtUTC: {
@@ -19,10 +18,16 @@ const UserSchema = new Schema(
     },
 
     is_private: Boolean
-    
+
   },
 
-  { versionKey: false }
+  {
+    versionKey: false,
+    timestamps: {
+      createdAt: "dtCreatedAtUTC",
+      updatedAt: "dtUpdatedAtUTC"
+    }
+  }
 
 )
 

@@ -14,18 +14,23 @@ const UserNameSchema = new Schema(
     userName: String,
 
     dtCreatedAtUTC: {
-      type: Date,
-      default: Date.now()
+      type: Date
     },
 
     dtUpdatedAtUTC: {
       type: Date,
       default: undefined
     }
-    
+
   },
 
-  { versionKey: false }
+  {
+    versionKey: false,
+    timestamps: {
+      createdAt: "dtCreatedAtUTC",
+      updatedAt: "dtUpdatedAtUTC"
+    }
+  }
 
 )
 

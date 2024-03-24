@@ -28,8 +28,8 @@ class Instagram {
 
     } catch (error) {
 
-      console.error(`Ошибка при авторизации в инстаграм ${error}`)
-
+      throw new Error(`Ошибка при авторизации в инстаграм ${error}`)
+      
     }
   }
 
@@ -43,9 +43,7 @@ class Instagram {
 
     } catch (error) {
 
-      console.error(`Ошибка при получении ID пользователя ${error}`)
-
-      return null
+      throw new Error (`Ошибка при получении ID пользователя ${error}`)
 
     }
   }
@@ -60,9 +58,7 @@ class Instagram {
 
     } catch (error) {
 
-      console.error(`Ошибка при получении информации о пользователе ${error}`)
-
-      return null
+      throw new Error (`Ошибка при получении информации о пользователе ${error}`)
 
     }
   }
@@ -91,9 +87,7 @@ class Instagram {
 
     } catch (error) {
 
-      console.error(`Ошибка при получении подписок пользователе ${error}`)
-
-      return []
+      throw new Error (`Ошибка при получении подписок пользователе ${error}`)
 
     }
   }
@@ -122,13 +116,12 @@ class Instagram {
 
     } catch (error) {
 
-      console.error(`Ошибка при получении подписчиков пользователе ${error}`)
-
-      return []
+      throw new Error (`Ошибка при получении подписчиков пользователе ${error}`)
 
     }
   }
 
 }
+
 
 module.exports = { Instagram }

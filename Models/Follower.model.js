@@ -6,29 +6,31 @@ const FollowerSchema = new Schema(
   {
     id: String,
 
-    _follow: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users"
-    },
-
     _follower: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users"
     },
 
+    _following: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users"
+    },
+
     dtCreatedAtUTC: {
-      type: Date,
-      default: Date.now()
+      type: Date
     },
 
     dtUpdatedAtUTC: {
-      type: Date,
-      default: undefined
+      type: Date
     },
   },
 
   {
     versionKey: false,
+    timestamps: {
+      createdAt: "dtCreatedAtUTC",
+      updatedAt: "dtUpdatedAtUTC"
+    }
   }
 
 )
