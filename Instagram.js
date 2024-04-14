@@ -1,11 +1,13 @@
 const { IgApiClient } = require("instagram-private-api")
 
+const utils = require("./utils")
+
 class Instagram {
   constructor() {
     this.IG_USERNAME = null
-      this.IG_PASSWORD = null
-      this.ig = new IgApiClient()
-    this.responseCount = 0
+    this.IG_PASSWORD = null
+    this.ig = new IgApiClient()
+    this.requestCount = 0
   }
 
 
@@ -21,7 +23,6 @@ class Instagram {
 
       await this.initializeCredentials()
 
-      this.responseCount++
       this.ig.state.generateDevice(this.IG_USERNAME)
 
       await this.ig.account.login(this.IG_USERNAME, this.IG_PASSWORD)
@@ -29,7 +30,7 @@ class Instagram {
     } catch (error) {
 
       throw new Error(`Ошибка при авторизации в инстаграм ${error}`)
-      
+
     }
   }
 
@@ -38,12 +39,11 @@ class Instagram {
   async getIdUser(userName) {
     try {
 
-      this.responseCount++
       return await this.ig.user.getIdByUsername(userName)
 
     } catch (error) {
 
-      throw new Error (`Ошибка при получении ID пользователя ${error}`)
+      throw new Error(`Ошибка при получении ID пользователя ${error}`)
 
     }
   }
@@ -53,70 +53,86 @@ class Instagram {
   async getFullInfoUser(idUser) {
     try {
 
-      this.responseCount++
       return await this.ig.user.info(idUser)
 
     } catch (error) {
 
-      throw new Error (`Ошибка при получении информации о пользователе ${error}`)
+      throw new Error(`Ошибка при получении информации о пользователе ${error}`)
 
     }
   }
 
 
   //Получение подписок пользователя
-  async getFollowing(idUser) {
+  async* getFollowing(idUser) {
     try {
-
-      const following = []
 
       let isMoreAvailable = true
 
       const followingFeed = this.ig.feed.accountFollowing(idUser)
 
-      do {
-        this.responseCount++
+      while (isMoreAvailable) {
+
+        this.requestCount++
+
         const followingArr = (await followingFeed.request()).users
-        following.push(...followingArr)
+
+        for (let following of followingArr) {
+          yield following
+        }
+
         isMoreAvailable = followingFeed.isMoreAvailable()
 
-      }
-      while (isMoreAvailable)
+        if (this.requestCount % 10 == 0) {
+          await utils.delay(utils.getRandomNumber(5000, 15000))
+          await this.login()
+        } else {
+          await utils.delay(utils.getRandomNumber(1000, 5000))
+        }
 
-      return following
+      }
+
 
     } catch (error) {
 
-      throw new Error (`Ошибка при получении подписок пользователе ${error}`)
+      throw new Error(`Ошибка при получении подписок пользователе ${error}`)
 
     }
   }
 
 
   //Получение подписчиков пользователя
-  async getFollower(idUser) {
+  async* getFollower(idUser) {
     try {
-
-      const follower = []
 
       let isMoreAvailable = true
 
       const followerFeed = this.ig.feed.accountFollowers(idUser)
 
-      do {
-        this.responseCount++
+      while (isMoreAvailable) {
+
+        this.requestCount++
+
         const followerArr = (await followerFeed.request()).users
-        follower.push(...followerArr)
+
+        for (let follower of followerArr) {
+          yield follower
+        }
+
         isMoreAvailable = followerFeed.isMoreAvailable()
 
-      }
-      while (isMoreAvailable)
+        if (this.requestCount % 10 == 0) {
+          await utils.delay(utils.getRandomNumber(5000, 15000))
+          await this.login()
+        } else {
+          await utils.delay(utils.getRandomNumber(1000, 5000))
+        }
 
-      return follower
+      }
 
     } catch (error) {
 
-      throw new Error (`Ошибка при получении подписчиков пользователе ${error}`)
+      throw new Error(`Ошибка при получении подписчиков пользователе ${error}`)
 
     }
   }

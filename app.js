@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 
+const _ = require('lodash')
+
 const options = { dbName: "instagram" }
 
 const Instagram = require("./Instagram").Instagram
@@ -48,48 +50,34 @@ async function app(userName) {
       try {
 
         //Проверить пользователя, которого передали при запуске
-        await utils.prepareUserName(info)
-        await utils.prepareUser(info)
+        await utils.upsertUserName(info)
+        await utils.upsertUser(info)
 
-        //Получить массив с подписками
-        const following = await inst.getFollowing(id)
 
-        if (following.length > 0) {
-
-          for (const rawUser of following) {
-
-            await utils.prepareUserName(rawUser)
-            await utils.prepareUser(rawUser)
-            await utils.prepareFollower(info.pk, rawUser.pk)
-
-          }
+        for await (const following of inst.getFollowing(id)) {
+          await utils.upsertUserName(following)
+          await utils.upsertUser(following)
+          await utils.upsertFollower(info.pk, following.pk)
         }
 
-
-        //Получить массив с подписчиками
-        const follower = await inst.getFollower(id)
-
-        if (follower.length > 0) {
-
-          for (const rawUser of follower) {
-
-            await utils.prepareUserName(rawUser)
-            await utils.prepareUser(rawUser)
-            await utils.prepareFollower(rawUser.pk, info.pk)
-
-          }
+        for await (const follower of inst.getFollower(id)) {
+          await utils.upsertUserName(follower)
+          await utils.upsertUser(follower)
+          await utils.upsertFollower(follower.pk, info.pk)
         }
 
         await mongoose.disconnect()
 
       } catch (error) {
-        console.error(error.message)
-        if (error) process.exit(1)
+        console.error(error)
+        process.exit(1)
       }
     })
 
   } catch (error) {
-    console.error(error.message)
-    if (error) process.exit(1)
+    console.error(error)
+    process.exit(1)
   }
 }
+
+app("its_lucylucy")

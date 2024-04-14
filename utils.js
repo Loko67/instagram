@@ -9,7 +9,7 @@ const { UserNameModel } = require("./Models/UserName.model")
  * @param {Object} rawUser объект пользователя из Instagram
  * 
  */
-async function prepareUser(rawUser) {
+async function upsertUser(rawUser) {
 
   try {
 
@@ -43,7 +43,7 @@ async function prepareUser(rawUser) {
  * @param {String} idFollowing id пользователя, на которого подписан
  * 
  */
-async function prepareFollower(idFollower, idFollowing) {
+async function upsertFollower(idFollower, idFollowing) {
 
   try {
 
@@ -77,7 +77,7 @@ async function prepareFollower(idFollower, idFollowing) {
  * @param {Object} rawUser объект пользователя из Instagram
  * 
  */
-async function prepareUserName(rawUser) {
+async function upsertUserName(rawUser) {
 
   const user = await UserModel.findOne({ id: rawUser.pk })
 
@@ -106,9 +106,39 @@ async function prepareUserName(rawUser) {
 
 }
 
+/**
+ * Delay
+ * @param {number} duration ms
+ * @return {*}
+ */
+function delay(duration) {
+  return new Promise(
+    function (resolve, reject) {
+      setTimeout(
+        function () {
+          resolve()
+        },
+        duration
+      )
+    }
+  )
+}
+
+/**
+ * Генерация случайного числа в заданном диапазоне.
+ * @param {number} min - Нижняя граница диапазона (включительно).
+ * @param {number} max - Верхняя граница диапазона (включительно).
+ * @return {number} Случайное целое число в заданном диапазоне.
+ */
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 module.exports = {
-  prepareUser,
-  prepareFollower,
-  prepareUserName
+  upsertUser,
+  upsertFollower,
+  upsertUserName,
+  delay,
+  getRandomNumber
 }
