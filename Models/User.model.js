@@ -9,7 +9,8 @@ const UserSchema = new Schema(
     userName: String,
 
     dtCreatedAtUTC: {
-      type: Date
+      type: Date,
+      default: new Date()
     },
 
     dtUpdatedAtUTC: {
@@ -20,6 +21,8 @@ const UserSchema = new Schema(
     is_private: Boolean
 
   },
+
+  //добавить количество подписок и подписчиков за счет dtUpdatedAtUTC
 
   {
     versionKey: false,
