@@ -21,9 +21,11 @@ async function upsertUser(rawUser) {
     }
 
     await UserModel.updateOne(
+
       { id: rawUser.pk },
       { $set: newUser },
       { upsert: true }
+
     )
 
   } catch (error) {
@@ -57,9 +59,11 @@ async function upsertFollower(idFollower, idFollowing) {
     }
 
     await FollowerModel.updateOne(
+
       { id: `_${idFollowing}__${idFollower}` },
       { $set: newFollower },
       { upsert: true }
+
     )
 
   } catch (error) {
@@ -92,9 +96,11 @@ async function upsertUserName(rawUser) {
       }
 
       await UserNameModel.updateOne(
+
         { userName: user.userName, _userId: user._id },
         { $set: newUserName },
         { upsert: true }
+
       )
 
     } catch (error) {

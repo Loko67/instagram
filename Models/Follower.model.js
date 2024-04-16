@@ -17,23 +17,28 @@ const FollowerSchema = new Schema(
     },
 
     dtCreatedAtUTC: {
-      type: Date
+      type: Date,
+      default: new Date(),
     },
 
-    dtUpdatedAtUTC: {
-      type: Date
-    },
+    dtUpdatedAtUTC: Date
+
   },
 
   {
     versionKey: false,
-    timestamps: {
-      createdAt: "dtCreatedAtUTC",
-      updatedAt: "dtUpdatedAtUTC"
-    }
   }
 
 )
+
+
+FollowerSchema.pre(
+  "updateOne",
+  function (next) {
+    this.getUpdate().dtUpdatedAtUTC = new Date()
+
+    next()
+  })
 
 
 const FollowerModel = mongoose.model("followers", FollowerSchema)

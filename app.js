@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 
+const { UserModel } = require("./Models/User.model")
+
 const _ = require('lodash')
 
 const options = { dbName: "instagram" }
@@ -33,8 +35,10 @@ async function app(userName) {
 
 
     db.on("error", error => {
+
       console.error(`Ошибка подключения к БД: ${error}`)
       process.exit(1)
+
     })
 
 
@@ -53,31 +57,38 @@ async function app(userName) {
         await utils.upsertUserName(info)
         await utils.upsertUser(info)
 
-
         for await (const following of inst.getFollowing(id)) {
+
           await utils.upsertUserName(following)
           await utils.upsertUser(following)
           await utils.upsertFollower(info.pk, following.pk)
+
         }
 
         for await (const follower of inst.getFollower(id)) {
+
           await utils.upsertUserName(follower)
           await utils.upsertUser(follower)
           await utils.upsertFollower(follower.pk, info.pk)
+
         }
 
         await mongoose.disconnect()
 
       } catch (error) {
+
         console.error(error)
         process.exit(1)
+
       }
     })
 
   } catch (error) {
+
     console.error(error)
     process.exit(1)
+
   }
 }
 
-app("its_lucylucy")
+app("oldwoodgeorgia_")

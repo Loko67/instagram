@@ -84,10 +84,14 @@ class Instagram {
         isMoreAvailable = followingFeed.isMoreAvailable()
 
         if (this.requestCount % 10 == 0) {
+
           await utils.delay(utils.getRandomNumber(5000, 15000))
           await this.login()
+
         } else {
+
           await utils.delay(utils.getRandomNumber(1000, 5000))
+
         }
 
       }
@@ -122,10 +126,14 @@ class Instagram {
         isMoreAvailable = followerFeed.isMoreAvailable()
 
         if (this.requestCount % 10 == 0) {
+
           await utils.delay(utils.getRandomNumber(5000, 15000))
           await this.login()
+
         } else {
+
           await utils.delay(utils.getRandomNumber(1000, 5000))
+
         }
 
       }
